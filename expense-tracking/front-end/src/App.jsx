@@ -2,13 +2,57 @@ import { useState } from 'react'
 import './App.css'
 
 function App() {
-  const [count, setCount] = useState(0)
+  /*const [count, setCount] = useState(0)
   const handleSubmit = (e) => {
     e.preventDefault()
     const formData = new FormData(e.target)
     const data = Object.fromEntries(formData.entries())
     console.log(data)
+  }*/
+  const [expenses, setExpenses] = useState([]);
+  /*form*/
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  const formData = new FormData(e.target);
+
+  const newExpense = {
+    title: formData.get('title'),
+    amount: parseFloat(formData.get('amount')),
+    category: formData.get('category'),
+    date: formData.get('date'),
+    description: formData.get('description')
+  };
+
+  try {
+    console.log('Sending expense:', newExpense);
+
+    const response = await fetch('http://127.0.0.1:8000/expenses', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(newExpense)
+    });
+
+    console.log('Response status:', response.status);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Backend error:', errorText);
+      return;
+    }
+
+    const data = await response.json();
+    console.log('Expense added:', data);
+
+    setExpenses((prevExpenses) => [...prevExpenses, data]);
+    e.target.reset();
+  } catch (error) {
+    console.error('Error adding expense:', error);
   }
+};
+  
 
 
   return (
@@ -55,7 +99,14 @@ function App() {
                   <label>
                     Category:
                   </label>
-                    <input type="text" name="category" required />
+                    <select name="category" required>
+                      <option value="Food">Food</option>
+                      <option value="Bills">Bills</option>
+                      <option value="Transportation">Transportation</option>
+                      <option value="Entertainment">Entertainment</option>
+                      <option value="Utilities">Utilities</option>
+                      <option value="Other">Other</option>
+                    </select>
                   </div>
                   <div className="form-row">
                   <label>
