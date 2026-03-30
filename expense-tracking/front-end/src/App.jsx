@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import './App.css'
 
 function App() {
@@ -52,8 +52,40 @@ const handleSubmit = async (e) => {
     console.error('Error adding expense:', error);
   }
 };
-  
+//recent transactions
+useEffect(() => {
+  const fetchExpenses = async () => {
+    try {
+      const response = await fetch('http://127.0.0.1:8000/expenses');
+      const data = await response.json();
+      setExpenses(data);
+    } catch (error) {
+      console.error('Error fetching expenses:', error);
+    }
+  };
 
+  fetchExpenses();
+}, []);
+//top part
+//total expenses
+const totalExpenses = expenses.reduce((total, expense) => {
+  return total + Number(expense.amount);
+}, 0);
+//no. transactions
+//top cat
+  //total amountsper category
+    const categoryTotals = expenses.reduce((totals, expense) => {
+      const category = expense.category;
+      totals[category] = (totals[category] || 0) + Number(expense.amount);
+      return totals;
+    }, {});
+    //find category with highest total
+      const topCategory =
+        Object.keys(categoryTotals).length === 0
+          ? "N/A"
+          : Object.entries(categoryTotals).reduce((top, current) =>
+              current[1] > top[1] ? current : top
+            )[0];
 
   return (
     <div>
@@ -63,17 +95,17 @@ const handleSubmit = async (e) => {
         <div className="topbar">
           <div className="total-expenses">
             <section className="card">
-              <h2>Total Expenses</h2>
+              <h2>Total Expenses: ${totalExpenses.toFixed(2)}</h2>
             </section>
           </div>
           <div className="top-categories">
             <section className="card">
-              <h2>Top Category</h2>
+              <h2>Top Category: {topCategory}</h2>
             </section>
           </div>  
           <div className="transaction-number">
             <section className="card">
-              <h2>Number of Transactions</h2>
+              <h2>Number of Transactions: {expenses.length}</h2>
             </section>
           </div>
 
@@ -125,9 +157,39 @@ const handleSubmit = async (e) => {
             </section>
             <section className="card">
               <h2>Recent Transactions</h2>
+
+              {expenses.length === 0 ? (
+                <p>No transactions found.</p>
+              ) : (
+                <div className="transactions-list">
+                  {expenses
+                    .slice()
+                    .reverse()
+                    .map((expense) => (
+                      <div key={expense.id} className="transaction-item">
+                        <div className="transaction-row">
+                          <div className="transaction-left">
+                            <strong>{expense.title}</strong>
+                            <span>| {expense.category}</span>
+                            <span>| {expense.date}</span>
+                          </div>
+
+                          <div className="transaction-right">
+                            ${Number(expense.amount).toFixed(2)}
+                          </div>
+                        </div>
+
+                        {expense.description && (
+                          <div className="transaction-description">
+                            {expense.description}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                </div>
+              )}
             </section>
-          </div>
-          
+        </div>
           <div className="container-right">
             <section className="card">
               <h2>Monthly Summary</h2>

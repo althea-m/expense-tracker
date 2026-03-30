@@ -116,5 +116,30 @@
         background-color: #342f42;
     }
 
+.transaction-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-    
+.transaction-left {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  color: #d6d1e6;
+}
+
+.transaction-left strong {
+  color: #fff;
+}
+
+.transaction-right {
+  font-weight: bold;
+  color: #fff;
+}
+
+.transaction-description {
+  margin-top: 6px;
+  font-size: 13px;
+  color: #cfcbe6;
+}
