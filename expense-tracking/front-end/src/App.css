@@ -116,81 +116,156 @@
         background-color: #342f42;
     }
 
-.transaction-item {
-  background-color: #5a5370;
-  padding: 12px;
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+    .transaction-item {
+    background-color: #5a5370;
+    padding: 12px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+        color: #d6d1e6;
+    font-family: monospace;
+    margin-bottom: 12px;
+    }
+    .transaction-item {
+    transition: 0.2s;
+    }
+
+    .transaction-item:hover {
+    transform: translateY(-2px);
+    }
+    .transactions-scroll {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-top: 12px;
+    padding-right: 6px;
+    }
+    .transactions-scroll::-webkit-scrollbar {
+    width: 8px;
+    }
+
+    .transactions-scroll::-webkit-scrollbar-track {
+    background: #3f3952;
+    border-radius: 10px;
+    }
+
+    .transactions-scroll::-webkit-scrollbar-thumb {
+    background: #8b80b6;
+    border-radius: 10px;
+    }
+
+    .transactions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    }
+
+    .transaction-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    }
+
+    .transaction-left {
+    display: flex;
+    gap: 12px;
+    align-items: center;
     color: #d6d1e6;
-  font-family: monospace;
-  margin-bottom: 12px;
-}
-.transaction-item {
-  transition: 0.2s;
-}
+    flex-wrap: wrap;
+    }
 
-.transaction-item:hover {
-  transform: translateY(-2px);
-}
-.transactions-scroll {
-  max-height: 300px;
-  overflow-y: auto;
-  margin-top: 12px;
-  padding-right: 6px;
-}
-.transactions-scroll::-webkit-scrollbar {
-  width: 8px;
-}
+    .transaction-left strong {
+    color: #fff;
+    }
 
-.transactions-scroll::-webkit-scrollbar-track {
-  background: #3f3952;
-  border-radius: 10px;
-}
+    .transaction-right {
+    font-weight: bold;
+    color: #fff;
+    }
 
-.transactions-scroll::-webkit-scrollbar-thumb {
-  background: #8b80b6;
-  border-radius: 10px;
-}
+    .transaction-description {
+    font-size: 13px;
+    color: #cfcbe6;
+    margin-left: 0;
+        background-color: #403a52;
+    padding: 5px;
+    border-radius: 6px;
+    }
+    .transaction-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    }
 
-.transactions-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+        .delete-btn {
+        background-color: #7a4d4d;
+        color: #fff;
+        border: none;
+        padding: 6px 6px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 12px;
+        }
 
-.transaction-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+        .delete-btn:hover {
+        background-color: #a85f5f;
+        }
 
-.transaction-left {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  color: #d6d1e6;
-  flex-wrap: wrap;
-}
+        .transaction-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        }
 
-.transaction-left strong {
-  color: #fff;
-}
+        .edit-btn,
+        .delete-btn {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        }
 
-.transaction-right {
-  font-weight: bold;
-  color: #fff;
-}
+        .edit-btn {
+        color: #8fd3ff;
+        }
 
-.transaction-description {
-  font-size: 13px;
-  color: #cfcbe6;
-  margin-left: 0;
-    background-color: #403a52;
-  padding: 5px;
-  border-radius: 6px;
-}
+        .edit-btn:hover {
+        transform: scale(1.1);
+        background-color: #8fd2ffb6;
+            border: none;
+        padding: 6px 6px;
+        border-radius: 6px;
+        cursor: pointer;
+        }
+
+        .delete-btn {
+        color: #ff6b6b;
+        }
+
+        .delete-btn:hover {
+        transform: scale(1.1);
+        }
+
+        .form-buttons {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+        }
+
+        .cancel-btn {
+        background-color: #c45454;
+        color: white;
+        border: none;
+        padding: 8px 14px;
+        border-radius: 6px;
+        cursor: pointer;
+        }
+        .cancel-btn:hover {
+        background-color: #e57373;
+            font-family: monospace;
+        }
 
 .monthly-list {
   display: flex;

@@ -39,4 +39,34 @@ def create_expense(expense: dict, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(new_expense)
     return new_expense
-    
+
+#delete expense
+@app.delete("/expenses/{expense_id}")
+def delete_expense(expense_id: int, db: Session = Depends(get_db)):
+    expense = db.query(Expense).filter(Expense.id == expense_id).first()
+
+    if not expense:
+        return {"error": "Expense not found"}
+
+    db.delete(expense)
+    db.commit()
+
+    return {"message": "Expense deleted successfully"}    
+#update expense
+@app.put("/expenses/{expense_id}")
+def update_expense(expense_id: int, updated_data: dict, db: Session = Depends(get_db)):
+    expense = db.query(Expense).filter(Expense.id == expense_id).first()
+
+    if not expense:
+        return {"error": "Expense not found"}
+
+    expense.title = updated_data.get("title")
+    expense.amount = updated_data.get("amount")
+    expense.category = updated_data.get("category")
+    expense.date = updated_data.get("date")
+    expense.description = updated_data.get("description")
+
+    db.commit()
+    db.refresh(expense)
+
+    return expense

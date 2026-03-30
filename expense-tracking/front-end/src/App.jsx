@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import './App.css'
+import { Trash2, Pencil } from "lucide-react";
 
 function App() {
   /*const [count, setCount] = useState(0)
@@ -14,42 +15,67 @@ function App() {
 const handleSubmit = async (e) => {
   e.preventDefault();
 
-  const formData = new FormData(e.target);
-
-  const newExpense = {
-    title: formData.get('title'),
-    amount: parseFloat(formData.get('amount')),
-    category: formData.get('category'),
-    date: formData.get('date'),
-    description: formData.get('description')
+  const expenseData = {
+    title: formValues.title,
+    amount: parseFloat(formValues.amount),
+    category: formValues.category,
+    date: formValues.date,
+    description: formValues.description
   };
 
   try {
-    console.log('Sending expense:', newExpense);
+    if (editingExpense) {
+      const response = await fetch(`http://127.0.0.1:8000/expenses/${editingExpense.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(expenseData)
+      });
 
-    const response = await fetch('http://127.0.0.1:8000/expenses', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(newExpense)
-    });
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Backend update error:', errorText);
+        return;
+      }
 
-    console.log('Response status:', response.status);
+      const updatedExpense = await response.json();
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Backend error:', errorText);
-      return;
+      setExpenses((prevExpenses) =>
+        prevExpenses.map((expense) =>
+          expense.id === editingExpense.id ? updatedExpense : expense
+        )
+      );
+
+      setEditingExpense(null);
+    } else {
+      const response = await fetch('http://127.0.0.1:8000/expenses', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(expenseData)
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Backend add error:', errorText);
+        return;
+      }
+
+      const data = await response.json();
+      setExpenses((prevExpenses) => [...prevExpenses, data]);
     }
 
-    const data = await response.json();
-    console.log('Expense added:', data);
-
-    setExpenses((prevExpenses) => [...prevExpenses, data]);
-    e.target.reset();
+    setFormValues({
+      title: "",
+      amount: "",
+      category: "Food",
+      date: "",
+      description: ""
+    });
   } catch (error) {
-    console.error('Error adding expense:', error);
+    console.error('Error saving expense:', error);
   }
 };
 //recent transactions
@@ -145,7 +171,66 @@ const totalExpenses = expenses.reduce((total, expense) => {
   //for visualization of category breakdown, find max total to set 100% width
   const maxCategoryTotal = categoryArray.length > 0 ? categoryArray[0][1] : 0;
 
-  
+  //delete transaction
+    const handleDelete = async (id) => {
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/expenses/${id}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Backend delete error:', errorText);
+        return;
+      }
+
+      setExpenses((prevExpenses) =>
+        prevExpenses.filter((expense) => expense.id !== id)
+      );
+    } catch (error) {
+      console.error('Error deleting expense:', error);
+    }
+  };
+//edit
+  const [editingExpense, setEditingExpense] = useState(null);
+
+  const [formValues, setFormValues] = useState({
+    title: "",
+    amount: "",
+    category: "Food",
+    date: "",
+    description: ""
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues((prev) => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleEdit = (expense) => {
+    setEditingExpense(expense);
+    setFormValues({
+      title: expense.title,
+      amount: expense.amount,
+      category: expense.category,
+      date: expense.date,
+      description: expense.description || ""
+    });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingExpense(null);
+    setFormValues({
+      title: "",
+      amount: "",
+      category: "Food",
+      date: "",
+      description: ""
+    });
+  };
 
   return (
     <div>
@@ -179,19 +264,19 @@ const totalExpenses = expenses.reduce((total, expense) => {
                   <label>
                     Title:
                   </label>
-                    <input type="text" name="title" required />
+                    <input type="text" name="title" value={formValues.title} onChange={handleInputChange}required />
                   </div>
                   <div className="form-row">
                   <label>
                     Amount:
                   </label>
-                    <input type="number" name="amount" step="0.01" required />
+                    <input type="number" name="amount" step="0.01" value={formValues.amount} onChange={handleInputChange} required />
                   </div>
                   <div className="form-row">
                   <label>
                     Category:
                   </label>
-                    <select name="category" required>
+                    <select name="category" value={formValues.category} onChange={handleInputChange} required>
                       <option value="Food">Food</option>
                       <option value="Bills">Bills</option>
                       <option value="Transportation">Transportation</option>
@@ -204,15 +289,29 @@ const totalExpenses = expenses.reduce((total, expense) => {
                   <label>
                     Date:
                   </label>
-                    <input type="date" name="date" required />
+                    <input type="date" name="date" value={formValues.date} onChange={handleInputChange} required />
                   </div>
                   <div className="form-row">
                   <label>
                     Description:
                   </label>
-                    <textarea name="description" rows="3"></textarea>
+                    <textarea name="description" value={formValues.description} onChange={handleInputChange} rows="3"></textarea>
                   </div>
-                  <button id="add-transaction-btn" type="submit">Add</button>
+                  <div className="form-buttons">
+                    <button id="add-transaction-btn" type="submit">
+                      {editingExpense ? "Update" : "Add"}
+                    </button>
+
+                    {editingExpense && (
+                      <button
+                        type="button"
+                        className="cancel-btn"
+                        onClick={handleCancelEdit}
+                      >
+                        Cancel
+                      </button>
+                    )}
+                  </div>
                 </form>
             </section>
             <section className="card">
@@ -235,8 +334,27 @@ const totalExpenses = expenses.reduce((total, expense) => {
                               <span>| {expense.date}</span>
                             </div>
 
-                            <div className="transaction-right">
-                              ${Number(expense.amount).toFixed(2)}
+                            <div className="transaction-actions">
+                                  <span className="transaction-right">
+                                    ${Number(expense.amount).toFixed(2)}
+                                  </span>
+                                  <button
+                                    className="edit-btn"
+                                    onClick={() => handleEdit(expense)}
+                                  >
+                                    <Pencil size={16} />
+                                  </button>
+                                  <button
+                                    className="delete-btn"
+                                    onClick={() => {
+                                      const confirmed = window.confirm('Delete this transaction?');
+                                      if (confirmed) {
+                                        handleDelete(expense.id);
+                                      }
+                                    }}
+                                  >
+                                    <Trash2 size={16} />
+                                  </button>
                             </div>
                           </div>
 
