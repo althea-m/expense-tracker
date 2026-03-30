@@ -86,6 +86,66 @@ const totalExpenses = expenses.reduce((total, expense) => {
           : Object.entries(categoryTotals).reduce((top, current) =>
               current[1] > top[1] ? current : top
             )[0];
+//monthly summary
+  //monthly totals
+    //filtering by month
+  const [selectedYear, setSelectedYear] = useState("All");
+
+    const availableYears = [
+    "All",
+    ...new Set(
+      expenses.map((expense) => new Date(expense.date).getFullYear().toString())
+    ),
+  ].sort((a, b) => {
+    if (a === "All") return -1;
+    if (b === "All") return 1;
+    return b - a;
+  });
+
+    const monthlyTotals = expenses.reduce((totals, expense) => {
+      const date = new Date(expense.date);
+
+      const year = date.getFullYear();
+      const month = date.getMonth(); // 0 = Jan, 1 = Feb...
+
+      const key = `${year}-${String(month).padStart(2, '0')}`; // sortable key
+
+      const label = date.toLocaleString("default", {
+        month: "long",
+        year: "numeric",
+      });
+
+      if (!totals[key]) {
+        totals[key] = { label, total: 0, year };
+      }
+
+      totals[key].total += Number(expense.amount);
+
+      return totals;
+    }, {});
+  //conv array of {monthYear, total}
+    const monthlyArray = Object.entries(monthlyTotals)
+      .filter(([, value]) =>
+        selectedYear === "All" ? true : value.year.toString() === selectedYear
+      )
+      .sort((a, b) => {
+        const [yearA, monthA] = a[0].split("-").map(Number);
+        const [yearB, monthB] = b[0].split("-").map(Number);
+
+        if (yearA !== yearB) return yearB - yearA;
+        return monthB - monthA;
+      });
+    //adding cuz looks cool like category breakdown
+    const maxMonthlyTotal = monthlyArray.length > 0
+      ? Math.max(...monthlyArray.map(([, value]) => value.total))
+      : 0;
+  
+  //category breakdown --> reuse categoryTotals
+  const categoryArray = Object.entries(categoryTotals).sort((a, b) => b[1] - a[1]);
+  //for visualization of category breakdown, find max total to set 100% width
+  const maxCategoryTotal = categoryArray.length > 0 ? categoryArray[0][1] : 0;
+
+  
 
   return (
     <div>
@@ -125,7 +185,7 @@ const totalExpenses = expenses.reduce((total, expense) => {
                   <label>
                     Amount:
                   </label>
-                    <input type="number" name="amount" required />
+                    <input type="number" name="amount" step="0.01" required />
                   </div>
                   <div className="form-row">
                   <label>
@@ -156,48 +216,116 @@ const totalExpenses = expenses.reduce((total, expense) => {
                 </form>
             </section>
             <section className="card">
-              <h2>Recent Transactions</h2>
+            <h2>Recent Transactions</h2>
 
-              {expenses.length === 0 ? (
-                <p>No transactions found.</p>
-              ) : (
-                <div className="transactions-list">
-                  {expenses
-                    .slice()
-                    .reverse()
-                    .map((expense) => (
-                      <div key={expense.id} className="transaction-item">
-                        <div className="transaction-row">
-                          <div className="transaction-left">
-                            <strong>{expense.title}</strong>
-                            <span>| {expense.category}</span>
-                            <span>| {expense.date}</span>
+              <div className="transactions-scroll">
+                {expenses.length === 0 ? (
+                  <p>No transactions found.</p>
+                ) : (
+                  <div className="transactions-list">
+                    {expenses
+                      .slice()
+                      .reverse()
+                      .map((expense) => (
+                        <div key={expense.id} className="transaction-item">
+                          <div className="transaction-row">
+                            <div className="transaction-left">
+                              <strong>{expense.title}</strong>
+                              <span>| {expense.category}</span>
+                              <span>| {expense.date}</span>
+                            </div>
+
+                            <div className="transaction-right">
+                              ${Number(expense.amount).toFixed(2)}
+                            </div>
                           </div>
 
-                          <div className="transaction-right">
-                            ${Number(expense.amount).toFixed(2)}
-                          </div>
+                          {expense.description && (
+                            <div className="transaction-description">
+                              {expense.description}
+                            </div>
+                          )}
                         </div>
-
-                        {expense.description && (
-                          <div className="transaction-description">
-                            {expense.description}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                </div>
-              )}
+                      ))}
+                  </div>
+                )}
+              </div>
             </section>
         </div>
           <div className="container-right">
             <section className="card">
-              <h2>Monthly Summary</h2>
-              
+              <div className="monthly-header">
+                <h2>Monthly Summary</h2>
+
+                <select
+                  value={selectedYear}
+                  onChange={(e) => setSelectedYear(e.target.value)}
+                  className="year-filter"
+                >
+                  {availableYears.map((year) => (
+                    <option key={year} value={year}>
+                      {year}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {monthlyArray.length === 0 ? (
+                <p>No monthly data.</p>
+              ) : (
+                <div className="monthly-list">
+                  {monthlyArray.map(([key, value]) => {
+                    const percentage =
+                      maxMonthlyTotal > 0 ? (value.total / maxMonthlyTotal) * 100 : 0;
+
+                    return (
+                      <div key={key} className="monthly-item">
+                        <div className="monthly-label-row">
+                          <span>{value.label}</span>
+                          <strong>${value.total.toFixed(2)}</strong>
+                        </div>
+
+                        <div className="monthly-bar-bg">
+                          <div
+                            className="monthly-bar-fill"
+                            style={{ width: `${percentage}%` }}
+                          ></div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </section>
-            <section className="card">
-              <h2>Category Breakdown</h2>
-            </section>
+              <section className="card">
+                <h2>Category Breakdown</h2>
+
+                {categoryArray.length === 0 ? (
+                  <p>No category data.</p>
+                ) : (
+                  <div className="category-list">
+                    {categoryArray.map(([category, total]) => {
+                      const percentage = maxCategoryTotal > 0 ? (total / maxCategoryTotal) * 100 : 0;
+
+                      return (
+                        <div key={category} className="category-item">
+                          <div className="category-label-row">
+                            <span>{category}</span>
+                            <strong>${total.toFixed(2)}</strong>
+                          </div>
+
+                          <div className="category-bar-bg">
+                            <div
+                              className="category-bar-fill"
+                              style={{ width: `${percentage}%` }}
+                            ></div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </section>
           </div>
         </div>
     </div>
