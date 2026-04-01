@@ -11,6 +11,8 @@ function App() {
     console.log(data)
   }*/
   const [expenses, setExpenses] = useState([]);
+  const [selectedYear, setSelectedYear] = useState("All");
+  const [editingExpense, setEditingExpense] = useState(null);
   /*form*/
 const handleSubmit = async (e) => {
   e.preventDefault();
@@ -115,7 +117,6 @@ const totalExpenses = expenses.reduce((total, expense) => {
 //monthly summary
   //monthly totals
     //filtering by month
-  const [selectedYear, setSelectedYear] = useState("All");
 
     const availableYears = [
     "All",
@@ -192,8 +193,6 @@ const totalExpenses = expenses.reduce((total, expense) => {
     }
   };
 //edit
-  const [editingExpense, setEditingExpense] = useState(null);
-
   const [formValues, setFormValues] = useState({
     title: "",
     amount: "",
@@ -231,7 +230,7 @@ const totalExpenses = expenses.reduce((total, expense) => {
       description: ""
     });
   };
-
+//render interface
   return (
     <div>
         <div className="header">
@@ -315,8 +314,8 @@ const totalExpenses = expenses.reduce((total, expense) => {
                 </form>
             </section>
             <section className="card">
-            <h2>Recent Transactions</h2>
 
+            <h2>Recent Transactions</h2>
               <div className="transactions-scroll">
                 {expenses.length === 0 ? (
                   <p>No transactions found.</p>
@@ -357,7 +356,6 @@ const totalExpenses = expenses.reduce((total, expense) => {
                                   </button>
                             </div>
                           </div>
-
                           {expense.description && (
                             <div className="transaction-description">
                               {expense.description}
@@ -370,6 +368,7 @@ const totalExpenses = expenses.reduce((total, expense) => {
               </div>
             </section>
         </div>
+        
           <div className="container-right">
             <section className="card">
               <div className="monthly-header">
