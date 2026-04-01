@@ -2,6 +2,15 @@
 ===OVERVIEW===
 The Expense Tracker is a full-stack web application that allows users to log, manage, and analyse their personal expenses. The system provides a simple and intuitive interface for tracking spending habits, identifying top expense categories, and visualising monthly expenditure trends. This application is designed to behave as a Single-Page Application (SPA), dynamically updating the interface without reloading pages, ensuring a smooth and seamless user experience.
 
+#how to run
+  *backend
+    cd backend
+    uvicorn main:app --reload
+  *rontend
+    cd frontend
+    npm install
+    npm run dev
+
 ===FEATURES===
 * Add new expense entries (title, category, amount, date, description)
 * Edit existing transactions inline
