@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Date, Numeric, Text
+from sqlalchemy import TIMESTAMP, Column, Integer, String, Date, Numeric, Text
 from database import Base
 
 #expense class
@@ -11,3 +11,25 @@ class Expense(Base):
     category = Column(String(50), nullable=False)
     date = Column(Date, nullable=False)
     description = Column(Text)
+
+#assignment 2 code:
+#user class
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String(100), unique=True, nullable=False)
+    email = Column(String(255), unique=True, nullable=False)
+    hashed_password = Column(String(255), nullable=False)
+    role = Column(String(50), default="user")
+    created_at = Column(TIMESTAMP)
+
+#user activity class
+class UserActivity(Base):
+    __tablename__ = "user_activity"
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"))
+    action = Column(String(100), nullable=False)
+    details = Column(Text)
+    timestamp = Column(TIMESTAMP)
