@@ -11,7 +11,9 @@ class Expense(Base):
     category = Column(String(50), nullable=False)
     date = Column(Date, nullable=False)
     description = Column(Text)
-
+    #fix
+    user_id = Column(Integer, ForeignKey("users.id"))
+    
 #assignment 2 code:
 #user class
 class User(Base):

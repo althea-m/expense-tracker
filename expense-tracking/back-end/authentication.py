@@ -12,7 +12,7 @@ ALGORITHM = "HS256"
 #token expiration time
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-#password hashing 
+#password hashing - fixed!
 pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 #function to hash password

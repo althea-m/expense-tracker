@@ -6,6 +6,7 @@ from models import Expense
 from fastapi.middleware.cors import CORSMiddleware
 
 #ass2
+from models import Expense, User, UserActivity
 from authentication import hash_password
 from models import User
 
@@ -36,17 +37,35 @@ def get_expenses(db: Session = Depends(get_db)):
     return db.query(Expense).all()
 
 #post new expense
-@app.post("/expenses")
-def create_expense(expense: dict, db: Session = Depends(get_db)):
+#@app.post("/expenses")
+#def create_expense(expense: dict, db: Session = Depends(get_db)):
     new_expense = Expense(**expense)
     db.add(new_expense)
     db.commit()
     db.refresh(new_expense)
     return new_expense
 
+@app.post("/expenses")
+def create_expense(expense: dict, db: Session = Depends(get_db)):
+    new_expense = Expense(**expense)
+    db.add(new_expense)
+    db.commit()
+    db.refresh(new_expense)
+
+    if new_expense.user_id:
+        activity = UserActivity(
+            user_id=new_expense.user_id,
+            action="CREATE_EXPENSE",
+            details=f"Created expense: {new_expense.title}"
+        )
+        db.add(activity)
+        db.commit()
+
+    return new_expense
+
 #delete expense
-@app.delete("/expenses/{expense_id}")
-def delete_expense(expense_id: int, db: Session = Depends(get_db)):
+#@app.delete("/expenses/{expense_id}")
+#def delete_expense(expense_id: int, db: Session = Depends(get_db)):
     expense = db.query(Expense).filter(Expense.id == expense_id).first()
 
     if not expense:
@@ -56,7 +75,50 @@ def delete_expense(expense_id: int, db: Session = Depends(get_db)):
     db.commit()
 
     return {"message": "Expense deleted successfully"}    
+
+@app.delete("/expenses/{expense_id}")
+def delete_expense(expense_id: int, db: Session = Depends(get_db)):
+    expense = db.query(Expense).filter(Expense.id == expense_id).first()
+
+    if not expense:
+        return {"error": "Expense not found"}
+
+    user_id = expense.user_id
+    title = expense.title
+
+    db.delete(expense)
+    db.commit()
+
+    if user_id:
+        activity = UserActivity(
+            user_id=user_id,
+            action="DELETE_EXPENSE",
+            details=f"Deleted expense: {title}"
+        )
+        db.add(activity)
+        db.commit()
+
+    return {"message": "Expense deleted successfully"}
+
 #update expense
+#@app.put("/expenses/{expense_id}")
+#def update_expense(expense_id: int, updated_data: dict, db: Session = Depends(get_db)):
+    expense = db.query(Expense).filter(Expense.id == expense_id).first()
+
+    if not expense:
+        return {"error": "Expense not found"}
+
+    expense.title = updated_data.get("title")
+    expense.amount = updated_data.get("amount")
+    expense.category = updated_data.get("category")
+    expense.date = updated_data.get("date")
+    expense.description = updated_data.get("description")
+
+    db.commit()
+    db.refresh(expense)
+
+    return expense
+
 @app.put("/expenses/{expense_id}")
 def update_expense(expense_id: int, updated_data: dict, db: Session = Depends(get_db)):
     expense = db.query(Expense).filter(Expense.id == expense_id).first()
@@ -72,6 +134,15 @@ def update_expense(expense_id: int, updated_data: dict, db: Session = Depends(ge
 
     db.commit()
     db.refresh(expense)
+
+    if expense.user_id:
+        activity = UserActivity(
+            user_id=expense.user_id,
+            action="UPDATE_EXPENSE",
+            details=f"Updated expense: {expense.title}"
+        )
+        db.add(activity)
+        db.commit()
 
     return expense
 
@@ -106,3 +177,8 @@ def register(user: dict, db: Session = Depends(get_db)):
         "user_id": new_user.id,
         "username": new_user.username
     }
+
+#admin viewing
+@app.get("/admin/activity")
+def get_activity(db: Session = Depends(get_db)):
+    return db.query(UserActivity).all()
