@@ -1,4 +1,4 @@
-from sqlalchemy import TIMESTAMP, Column, Integer, String, Date, Numeric, Text
+from sqlalchemy import Column, Integer, String, Date, Numeric, Text, TIMESTAMP, ForeignKey
 from database import Base
 
 #expense class

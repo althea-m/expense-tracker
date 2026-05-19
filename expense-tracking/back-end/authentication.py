@@ -13,7 +13,7 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 #password hashing 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 
 #function to hash password
 def hash_password(password: str) -> str:
@@ -21,10 +21,7 @@ def hash_password(password: str) -> str:
 
 #function to verify password
 def verify_password(plain_password, hashed_password):
-    return pwd_context.verify(
-        plain_password,
-        hashed_password
-    )
+    return pwd_context.verify(plain_password, hashed_password)
 
 #token creation function
 def create_access_token(data: dict):

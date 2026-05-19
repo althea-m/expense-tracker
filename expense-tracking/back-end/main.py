@@ -5,6 +5,10 @@ from models import Expense
 #connects frontend to FastAPI on different ports ;p
 from fastapi.middleware.cors import CORSMiddleware
 
+#ass2
+from authentication import hash_password
+from models import User
+
 app = FastAPI()
 #uvicorn main:app --reload
 
@@ -70,3 +74,35 @@ def update_expense(expense_id: int, updated_data: dict, db: Session = Depends(ge
     db.refresh(expense)
 
     return expense
+
+#register user
+@app.post("/register")
+def register(user: dict, db: Session = Depends(get_db)):
+
+    #debug
+    print("FULL USER BODY:", user)
+    print("PASSWORD VALUE:", user.get("password"))
+    print("PASSWORD TYPE:", type(user.get("password")))
+    print("PASSWORD LENGTH:", len(user.get("password")))
+    
+    existing_user = db.query(User).filter(User.email == user["email"]).first()
+
+    if existing_user:
+        return {"error": "Email already registered"}
+
+    new_user = User(
+        username=user["username"],
+        email=user["email"],
+        hashed_password=hash_password(user["password"]),
+        role="user"
+    )
+
+    db.add(new_user)
+    db.commit()
+    db.refresh(new_user)
+
+    return {
+        "message": "User registered successfully",
+        "user_id": new_user.id,
+        "username": new_user.username
+    }
