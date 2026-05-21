@@ -7,7 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 #ass2
 from models import Expense, User, UserActivity
-from authentication import hash_password
+from authentication import hash_password, verify_password, create_access_token
 from models import User
 
 app = FastAPI()
@@ -177,6 +177,44 @@ def register(user: dict, db: Session = Depends(get_db)):
         "user_id": new_user.id,
         "username": new_user.username
     }
+
+#login 
+@app.post("/login")
+def login(user: dict, db: Session = Depends(get_db)):
+    db_user = db.query(User).filter(User.email == user["email"]).first()
+
+    if not db_user:
+        return {"error": "Invalid email or password"}
+
+    if not verify_password(user["password"], db_user.hashed_password):
+        return {"error": "Invalid email or password"}
+
+    token = create_access_token({
+        "sub": db_user.email,
+        "user_id": db_user.id,
+        "role": db_user.role
+    })
+
+    activity = UserActivity(
+        user_id=db_user.id,
+        action="LOGIN",
+        details=f"{db_user.username} logged in"
+    )
+
+    db.add(activity)
+    db.commit()
+
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": {
+            "id": db_user.id,
+            "username": db_user.username,
+            "email": db_user.email,
+            "role": db_user.role
+        }
+    }
+
 
 #admin viewing
 @app.get("/admin/activity")

@@ -13,6 +13,10 @@ function App() {
   const [expenses, setExpenses] = useState([]);
   const [selectedYear, setSelectedYear] = useState("All");
   const [editingExpense, setEditingExpense] = useState(null);
+  //ass2
+  const [currentUser, setCurrentUser] = useState(null);
+  const [token, setToken] = useState(localStorage.getItem("token") || "");
+  const [authMode, setAuthMode] = useState("login");
   /*form*/
 const handleSubmit = async (e) => {
   e.preventDefault();
@@ -230,11 +234,142 @@ const totalExpenses = expenses.reduce((total, expense) => {
       description: ""
     });
   };
-//render interface
+
+  //login and registration for ass2
+    //login
+      const handleLogin = async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(e.target);
+
+        const loginData = {
+          email: formData.get("email"),
+          password: formData.get("password")
+        };
+
+        try {
+          const response = await fetch("http://127.0.0.1:8000/login", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(loginData)
+          });
+
+          const data = await response.json();
+
+          if (data.access_token) {
+            localStorage.setItem("token", data.access_token);
+            setToken(data.access_token);
+            setCurrentUser(data.user);
+          } else {
+            alert(data.error || "Login failed");
+          }
+        } catch (error) {
+          console.error("Login error:", error);
+        }
+      };
+    //registration
+      const handleRegister = async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(e.target);
+
+        const registerData = {
+          username: formData.get("username"),
+          email: formData.get("email"),
+          password: formData.get("password")
+        };
+
+        try {
+          const response = await fetch("http://127.0.0.1:8000/register", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(registerData)
+          });
+
+          const data = await response.json();
+
+          if (data.error) {
+            alert(data.error);
+          } else {
+            alert("Registration successful. Please log in.");
+            setAuthMode("login");
+          }
+        } catch (error) {
+          console.error("Register error:", error);
+        }
+      };
+    //logout
+      const handleLogout = () => {
+        localStorage.removeItem("token");
+        setToken("");
+        setCurrentUser(null);
+      };
+
+//render interface + added login/register forms for ass2
+if (!token) {
   return (
+    <div className="auth-page">
+      <section className="auth-card">
+        <h1>Expense Tracker</h1>
+
+        {authMode === "login" ? (
+          <>
+            <h2>Login</h2>
+            <form onSubmit={handleLogin}>
+              <input type="email" name="email" placeholder="Email" required />
+              <input type="password" name="password" placeholder="Password" required />
+              <button type="submit">Login</button>
+            </form>
+
+            <p>
+              No account?{" "}
+              <button type="button" onClick={() => setAuthMode("register")}>
+                Register
+              </button>
+            </p>
+          </>
+        ) : (
+          <>
+            <h2>Register</h2>
+            <form onSubmit={handleRegister}>
+              <input type="text" name="username" placeholder="Username" required />
+              <input type="email" name="email" placeholder="Email" required />
+              <input type="password" name="password" placeholder="Password" required />
+              <button type="submit">Register</button>
+            </form>
+
+            <p>
+              Already have an account?{" "}
+              <button type="button" onClick={() => setAuthMode("login")}>
+                Login
+              </button>
+            </p>
+          </>
+        )}
+      </section>
+    </div>
+  );
+}
+return ( 
     <div>
         <div className="header">
           <h1>Expense Tracker</h1>
+          <div className="header-other">
+            <span className="welcome-text">
+              Welcome, {currentUser?.username}
+            </span>
+
+            <button
+              className="logout-btn"
+              onClick={handleLogout}
+            >
+              Logout
+            </button>
+          </div>
         </div>
         <div className="topbar">
           <div className="total-expenses">
@@ -446,7 +581,7 @@ const totalExpenses = expenses.reduce((total, expense) => {
           </div>
         </div>
     </div>
-  )
+)
 }
 
 export default App

@@ -3,11 +3,51 @@
     padding: 5px;
     text-align: center;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px;
+    position: relative;
 }
+
+.welcome-text {
+  color: white;
+  font-weight: 500;
+  font-family:monospace;
+  font-size: 23px;
+  font-weight: 800;
+}
+
+.logout-btn {
+  background:  #bb5656;
+  color: white;
+  border: none;
+  padding: 12px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  font-family:monospace;
+}
+
+.logout-btn:hover {
+  opacity: 0.9;
+}
+
+.header-other {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
 .header h1 {
     color: #fff;
     font-size: 38px;
     font-family:monospace;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    
 }
 .card h2 {
     color: #fff;
