@@ -219,11 +219,26 @@ def login(user: dict, db: Session = Depends(get_db)):
 
 
 #admin viewing
-
+#user
 @app.get("/admin/users")
 def get_all_users(db: Session = Depends(get_db)):
     return db.query(User).all()
-
+#activity
 @app.get("/admin/activity")
 def get_activity(db: Session = Depends(get_db)):
     return db.query(UserActivity).all()
+#delete user
+@app.delete("/admin/users/{user_id}")
+def delete_user(user_id: int, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.id == user_id).first()
+
+    if not user:
+        return {"error": "User not found"}
+
+    db.query(UserActivity).filter(UserActivity.user_id == user_id).delete()
+    db.query(Expense).filter(Expense.user_id == user_id).delete()
+
+    db.delete(user)
+    db.commit()
+
+    return {"message": "User and related records deleted successfully"}
