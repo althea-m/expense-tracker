@@ -10,6 +10,13 @@
     position: relative;
 }
 
+p {
+    color: #fff;
+    font-size: 14px;
+    font-family:monospace;
+    font-weight: 500;
+}
+
 .welcome-text {
   color: white;
   font-weight: 500;
@@ -154,6 +161,21 @@
     }
     #add-transaction-btn:hover {
         background-color: #342f42;
+    }
+
+    .search-input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 10px 12px;
+      margin: 10px 0 14px 0;
+      border: none;
+      border-radius: 8px;
+      outline: none;
+      font-family: monospace;
+    }
+
+    .search-input:focus {
+      box-shadow: 0 0 0 3px rgba(184, 169, 255, 0.35);
     }
 
     .transaction-item {

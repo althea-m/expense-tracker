@@ -14,9 +14,11 @@ function App() {
   const [selectedYear, setSelectedYear] = useState("All");
   const [editingExpense, setEditingExpense] = useState(null);
   //ass2
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(
+    JSON.parse(localStorage.getItem("currentUser")) || null);
   const [token, setToken] = useState(localStorage.getItem("token") || "");
   const [authMode, setAuthMode] = useState("login");
+  const [searchTerm, setSearchTerm] = useState("");
   /*form*/
 const handleSubmit = async (e) => {
   e.preventDefault();
@@ -26,7 +28,8 @@ const handleSubmit = async (e) => {
     amount: parseFloat(formValues.amount),
     category: formValues.category,
     date: formValues.date,
-    description: formValues.description
+    description: formValues.description,
+    user_id: currentUser.id
   };
 
   try {
@@ -87,17 +90,28 @@ const handleSubmit = async (e) => {
 //recent transactions
 useEffect(() => {
   const fetchExpenses = async () => {
+    if (!currentUser) return;
+
     try {
-      const response = await fetch('http://127.0.0.1:8000/expenses');
+      const response = await fetch(
+        `http://127.0.0.1:8000/expenses?user_id=${currentUser.id}`
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Error fetching expenses:", errorText);
+        return;
+      }
+
       const data = await response.json();
       setExpenses(data);
     } catch (error) {
-      console.error('Error fetching expenses:', error);
+      console.error("Error fetching expenses:", error);
     }
   };
 
   fetchExpenses();
-}, []);
+}, [currentUser]);
 //top part
 //total expenses
 const totalExpenses = expenses.reduce((total, expense) => {
@@ -260,6 +274,8 @@ const totalExpenses = expenses.reduce((total, expense) => {
 
           if (data.access_token) {
             localStorage.setItem("token", data.access_token);
+            localStorage.setItem("currentUser", JSON.stringify(data.user));
+
             setToken(data.access_token);
             setCurrentUser(data.user);
           } else {
@@ -304,10 +320,23 @@ const totalExpenses = expenses.reduce((total, expense) => {
       };
     //logout
       const handleLogout = () => {
-        localStorage.removeItem("token");
-        setToken("");
-        setCurrentUser(null);
+      localStorage.removeItem("token");
+      localStorage.removeItem("currentUser");
+      setToken("");
+      setCurrentUser(null);
       };
+    
+    //filterexpenses by search term
+      const filteredExpenses = expenses.filter((expense) => {
+        const search = searchTerm.toLowerCase();
+
+        return (
+          expense.title.toLowerCase().includes(search) ||
+          expense.category.toLowerCase().includes(search) ||
+          expense.date.toLowerCase().includes(search) ||
+          (expense.description || "").toLowerCase().includes(search)
+        );
+      });
 
 //render interface + added login/register forms for ass2
 if (!token) {
@@ -448,15 +477,21 @@ return (
                   </div>
                 </form>
             </section>
-            <section className="card">
-
-            <h2>Recent Transactions</h2>
+            <section className="card"> 
+            <h2>Previous Transactions</h2>
+            <input
+                type="text"
+                className="search-input"
+                placeholder="Search transactions..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
               <div className="transactions-scroll">
-                {expenses.length === 0 ? (
-                  <p>No transactions found.</p>
+                {filteredExpenses.length === 0 ? (
+                  <p>Womp womp... No transactions found.</p>
                 ) : (
                   <div className="transactions-list">
-                    {expenses
+                    {filteredExpenses
                       .slice()
                       .reverse()
                       .map((expense) => (
@@ -583,5 +618,6 @@ return (
     </div>
 )
 }
+
 
 export default App

@@ -33,8 +33,10 @@ def root():
 
 #get all expenses
 @app.get("/expenses")
-def get_expenses(db: Session = Depends(get_db)):
-    return db.query(Expense).all()
+def get_expenses(user_id: int, db: Session = Depends(get_db)):
+    return db.query(Expense).filter(
+        Expense.user_id == user_id
+    ).all()
 
 #post new expense
 #@app.post("/expenses")
@@ -217,6 +219,11 @@ def login(user: dict, db: Session = Depends(get_db)):
 
 
 #admin viewing
+
+@app.get("/admin/users")
+def get_all_users(db: Session = Depends(get_db)):
+    return db.query(User).all()
+
 @app.get("/admin/activity")
 def get_activity(db: Session = Depends(get_db)):
     return db.query(UserActivity).all()
