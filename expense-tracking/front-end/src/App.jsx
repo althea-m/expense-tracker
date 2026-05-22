@@ -19,18 +19,37 @@ function App() {
   const [token, setToken] = useState(localStorage.getItem("token") || "");
   const [authMode, setAuthMode] = useState("login");
   const [searchTerm, setSearchTerm] = useState("");
-  /*form*/
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const [showAdminPanel, setShowAdminPanel] = useState(false);
+  const [users, setUsers] = useState([]);
+  const [activities, setActivities] = useState([]);  
 
-  const expenseData = {
-    title: formValues.title,
-    amount: parseFloat(formValues.amount),
-    category: formValues.category,
-    date: formValues.date,
-    description: formValues.description,
-    user_id: currentUser.id
+  //admin fetch
+  const fetchAdminData = async () => {
+    try {
+      const usersResponse = await fetch("http://127.0.0.1:8000/admin/users");
+      const usersData = await usersResponse.json();
+
+      const activityResponse = await fetch("http://127.0.0.1:8000/admin/activity");
+      const activityData = await activityResponse.json();
+
+      setUsers(usersData);
+      setActivities(activityData);
+    } catch (error) {
+      console.error("Error fetching admin data:", error);
+    }
   };
+
+  /*form*/
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const expenseData = {
+      title: formValues.title,
+      amount: parseFloat(formValues.amount),
+      category: formValues.category,
+      date: formValues.date,
+      description: formValues.description,
+      user_id: currentUser.id
+    };
 
   try {
     if (editingExpense) {
@@ -391,7 +410,17 @@ return (
             <span className="welcome-text">
               Welcome, {currentUser?.username}
             </span>
-
+            {currentUser?.role === "admin" && (
+              <button
+                className="admin-btn"
+                onClick={() => {
+                  setShowAdminPanel(!showAdminPanel);
+                  fetchAdminData();
+                }}
+              >
+                Admin Panel
+              </button>
+            )}
             <button
               className="logout-btn"
               onClick={handleLogout}
@@ -400,6 +429,41 @@ return (
             </button>
           </div>
         </div>
+        {showAdminPanel && currentUser?.role === "admin" && (
+  <section className="card admin-panel">
+    <h4>Admin Panel</h4>
+
+    <h3>User Accounts</h3>
+    <div className="admin-list">
+      {users.length === 0 ? (
+        <p>No users found.</p>
+      ) : (
+        users.map((user) => (
+          <div key={user.id} className="admin-row">
+            <span>{user.username}</span>
+            <span>{user.email}</span>
+            <span>{user.role}</span>
+          </div>
+        ))
+      )}
+        </div>
+          <h3>User Activity</h3>
+            <div className="activity-list">
+              {activities.length === 0 ? (
+                <p>No activity found.</p>
+                ) : (
+                  activities.map((activity) => (
+                    <div key={activity.id} className="activity-row">
+                      <span>User ID: {activity.user_id}</span>
+                      <span>{activity.action}</span>
+                      <span>{activity.details}</span>
+                      <span>{activity.timestamp}</span>
+                    </div>
+                  ))
+                )}
+              </div>
+            </section>
+          )}
         <div className="topbar">
           <div className="total-expenses">
             <section className="card">

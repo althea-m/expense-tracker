@@ -56,14 +56,84 @@ p {
     transform: translateX(-50%);
     
 }
+
+.admin-panel {
+  margin: 20px;
+}
+
+.admin-list,
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+  margin-bottom: 20px;
+  font-family:monospace;
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
+.admin-row,
+.activity-row {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr 2fr;
+  gap: 12px;
+  background-color: #5a5370;
+  padding: 10px;
+  border-radius: 8px;
+  color: white;
+  align-items: center;
+}
+
+.transactions-scroll::-webkit-scrollbar,
+.activity-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.transactions-scroll::-webkit-scrollbar-thumb,
+.activity-list::-webkit-scrollbar-thumb {
+  background: #8d84b1;
+  border-radius: 8px;
+}
+
+.admin-btn {
+  background-color: #7c5f97;
+  color: white;
+  border: none;
+  outline: none;
+  padding: 12px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: monospace;
+  font-weight: 600;
+  box-shadow: none;
+}
+
+.admin-btn:hover {
+  opacity: 0.9;
+}
+
+h4 {
+    color: #fff;
+    font-size: 26px;
+    font-family:monospace;
+    justify-self: center;
+}
+
+h3 {
+    color: #fff;
+    font-size: 22px;
+    font-family:monospace;
+}
+
 .card h2 {
     color: #fff;
     font-size: 16px;
     font-family:monospace;
 }
-.body {
-    background-color: #49425c;
-    padding: 20px;
+body {
+    background-color: #403a52;
 }
 
 .container {
