@@ -362,41 +362,52 @@ if (!token) {
   return (
     <div className="auth-page">
       <section className="auth-card">
-        <h1>Expense Tracker</h1>
+        <div className="auth-header">
+          <h1>Expense Tracker</h1>
+          <p>Track, manage, and understand your spending.</p>
+        </div>
+
+        <div className="auth-tabs">
+          <button
+            type="button"
+            className={authMode === "login" ? "active-tab" : ""}
+            onClick={() => setAuthMode("login")}
+          >
+            Login
+          </button>
+
+          <button
+            type="button"
+            className={authMode === "register" ? "active-tab" : ""}
+            onClick={() => setAuthMode("register")}
+          >
+            Register
+          </button>
+        </div>
 
         {authMode === "login" ? (
-          <>
-            <h2>Login</h2>
-            <form onSubmit={handleLogin}>
-              <input type="email" name="email" placeholder="Email" required />
-              <input type="password" name="password" placeholder="Password" required />
-              <button type="submit">Login</button>
-            </form>
+          <form className="auth-form" onSubmit={handleLogin}>
+            <h2>Welcome Back</h2>
 
-            <p>
-              No account?{" "}
-              <button type="button" onClick={() => setAuthMode("register")}>
-                Register
-              </button>
-            </p>
-          </>
+            <input type="email" name="email" placeholder="Email" required />
+            <input type="password" name="password" placeholder="Password" required />
+
+            <button type="submit" className="auth-submit">
+              Login
+            </button>
+          </form>
         ) : (
-          <>
-            <h2>Register</h2>
-            <form onSubmit={handleRegister}>
-              <input type="text" name="username" placeholder="Username" required />
-              <input type="email" name="email" placeholder="Email" required />
-              <input type="password" name="password" placeholder="Password" required />
-              <button type="submit">Register</button>
-            </form>
+          <form className="auth-form" onSubmit={handleRegister}>
+            <h2>Create Account</h2>
 
-            <p>
-              Already have an account?{" "}
-              <button type="button" onClick={() => setAuthMode("login")}>
-                Login
-              </button>
-            </p>
-          </>
+            <input type="text" name="username" placeholder="Username" required />
+            <input type="email" name="email" placeholder="Email" required />
+            <input type="password" name="password" placeholder="Password" required />
+
+            <button type="submit" className="auth-submit">
+              Register
+            </button>
+          </form>
         )}
       </section>
     </div>
