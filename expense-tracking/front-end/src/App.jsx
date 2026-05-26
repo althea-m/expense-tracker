@@ -39,6 +39,39 @@ function App() {
     }
   };
 
+  const handleDeleteUser = async (userId) => {
+  const confirmed = window.confirm(
+    "Delete this user and all related data?"
+  );
+
+  if (!confirmed) return;
+
+  try {
+    const response = await fetch(
+      `http://127.0.0.1:8000/admin/users/${userId}`,
+      {
+        method: "DELETE"
+      }
+    );
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Delete user error:", errorText);
+      return;
+    }
+
+    setUsers((prevUsers) =>
+      prevUsers.filter((user) => user.id !== userId)
+    );
+
+    setActivities((prevActivities) =>
+      prevActivities.filter((activity) => activity.user_id !== userId)
+    );
+  } catch (error) {
+    console.error("Error deleting user:", error);
+  }
+};
+
   /*form*/
 const handleSubmit = async (e) => {
   e.preventDefault();
@@ -462,6 +495,13 @@ return (
             <span>{user.username}</span>
             <span>{user.email}</span>
             <span>{user.role}</span>
+
+            <button
+              className="delete-user-btn"
+              onClick={() => handleDeleteUser(user.id)}
+            >
+              Delete
+            </button>
           </div>
         ))
       )}

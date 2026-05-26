@@ -77,13 +77,28 @@ p {
 .admin-row,
 .activity-row {
   display: grid;
-  grid-template-columns: 1fr 2fr 1fr 2fr;
+  grid-template-columns: 1fr 2fr 1fr auto;
   gap: 12px;
   background-color: #5a5370;
   padding: 10px;
   border-radius: 8px;
   color: white;
   align-items: center;
+}
+
+.delete-user-btn {
+  background-color: #d65c5c;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-family: monospace;
+  font-weight: 600;
+}
+
+.delete-user-btn:hover {
+  opacity: 0.9;
 }
 
 .transactions-scroll::-webkit-scrollbar,

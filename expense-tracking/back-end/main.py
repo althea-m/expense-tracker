@@ -242,3 +242,4 @@ def delete_user(user_id: int, db: Session = Depends(get_db)):
     db.commit()
 
     return {"message": "User and related records deleted successfully"}
+
