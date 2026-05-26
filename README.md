@@ -1,5 +1,5 @@
-# expense-tracker application
-===OVERVIEW===
+## expense-tracker application
+## ===OVERVIEW===
 The Expense Tracker is a full-stack web application that allows users to log, manage, and analyse their personal expenses. The system provides a simple and intuitive interface for tracking spending habits, identifying top expense categories, and visualising monthly expenditure trends. This application is designed to behave as a Single-Page Application (SPA), dynamically updating the interface without reloading pages, ensuring a smooth and seamless user experience.
 
 ## how to run
@@ -11,7 +11,7 @@ The Expense Tracker is a full-stack web application that allows users to log, ma
     npm install
     npm run dev
 
-===FEATURES===
+## ===FEATURES===
 ## Expense Management
 - Add new expense entries
   - Title
@@ -71,7 +71,7 @@ The Expense Tracker is a full-stack web application that allows users to log, ma
 - Automatically remove related user expenses and activity records
 
 ---
-===TECHNICAL===
+## ===TECHNICAL===
 #frontend
 * React
 * Javascript
@@ -84,14 +84,14 @@ The Expense Tracker is a full-stack web application that allows users to log, ma
 * MySQL
 * RestAPI
 
-===CRUD-OPERATIONS===
+## ===CRUD-OPERATIONS===
 * Create -> Add new expense 
 * Read -> Retrieve all expenses 
 * Update -> Edit existing expense 
 * Delete -> Remove expense
 
-===FILE-STRUCTURE===
-🧩 Application Structure
+## ===FILE-STRUCTURE===
+Application Structure
 expense-tracker/
 │
 ├── front-end/
