@@ -40,59 +40,66 @@ function App() {
   };
 
   /*form*/
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const expenseData = {
-      title: formValues.title,
-      amount: parseFloat(formValues.amount),
-      category: formValues.category,
-      date: formValues.date,
-      description: formValues.description,
-      user_id: currentUser.id
-    };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!currentUser) {
+    alert("Please log in first.");
+    return;
+  }
+
+  const expenseData = {
+    title: formValues.title,
+    amount: parseFloat(formValues.amount),
+    category: formValues.category,
+    date: formValues.date,
+    description: formValues.description,
+    user_id: currentUser.id
+  };
 
   try {
     if (editingExpense) {
-      const response = await fetch(`http://127.0.0.1:8000/expenses/${editingExpense.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(expenseData)
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('Backend update error:', errorText);
-        return;
-      }
-
-      const updatedExpense = await response.json();
-
-      setExpenses((prevExpenses) =>
-        prevExpenses.map((expense) =>
-          expense.id === editingExpense.id ? updatedExpense : expense
-        )
+      const response = await fetch(
+        `http://127.0.0.1:8000/expenses/${editingExpense.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(expenseData)
+        }
       );
 
-      setEditingExpense(null);
-    } else {
-      const response = await fetch('http://127.0.0.1:8000/expenses', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(expenseData)
-      });
-
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Backend add error:', errorText);
+        console.error("Backend update error:", errorText);
         return;
       }
 
-      const data = await response.json();
-      setExpenses((prevExpenses) => [...prevExpenses, data]);
+      await response.json();
+      setEditingExpense(null);
+      await fetchExpenses();
+
+    } else {
+      const response = await fetch(
+        "http://127.0.0.1:8000/expenses",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(expenseData)
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Backend add error:", errorText);
+        return;
+      }
+
+await response.json();
+await fetchExpenses();
     }
 
     setFormValues({
@@ -102,33 +109,34 @@ function App() {
       date: "",
       description: ""
     });
+
   } catch (error) {
-    console.error('Error saving expense:', error);
+    console.error("Error saving expense:", error);
   }
 };
 //recent transactions
-useEffect(() => {
-  const fetchExpenses = async () => {
-    if (!currentUser) return;
+const fetchExpenses = async () => {
+  if (!currentUser) return;
 
-    try {
-      const response = await fetch(
-        `http://127.0.0.1:8000/expenses?user_id=${currentUser.id}`
-      );
+  try {
+    const response = await fetch(
+      `http://127.0.0.1:8000/expenses?user_id=${currentUser.id}`
+    );
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Error fetching expenses:", errorText);
-        return;
-      }
-
-      const data = await response.json();
-      setExpenses(data);
-    } catch (error) {
-      console.error("Error fetching expenses:", error);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Error fetching expenses:", errorText);
+      return;
     }
-  };
 
+    const data = await response.json();
+    setExpenses(Array.isArray(data) ? data : []);
+  } catch (error) {
+    console.error("Error fetching expenses:", error);
+  }
+};
+
+useEffect(() => {
   fetchExpenses();
 }, [currentUser]);
 //top part
